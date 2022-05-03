@@ -1,8 +1,8 @@
 import ezdxf
 
 import acronymDic
-
-doc = ezdxf.readfile("BN02Y0.dxf")
+fileName = "BS27Y1"
+doc = ezdxf.readfile(fileName + ".dxf")
 msp = doc.modelspace()
 entities = msp.query('MTEXT')
 entityArray = entities.query('*[style=="ROMANS"]')
@@ -69,7 +69,7 @@ def edit_entity(e):
 
 for e in entityArray:
     edit_entity(e)
-with open('acronyms.txt', 'w') as f:
+with open(fileName+'.txt', 'w') as f:
     for line in lines:
         f.write(line)
         f.write('\n')
