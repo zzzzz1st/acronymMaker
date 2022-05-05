@@ -1,12 +1,6 @@
 import ezdxf
 
 import acronymDic
-fileName = "BS27Y1"
-doc = ezdxf.readfile(fileName + ".dxf")
-msp = doc.modelspace()
-entities = msp.query('MTEXT')
-entityArray = entities.query('*[style=="ROMANS"]')
-lines = []
 
 
 # helper function
@@ -67,9 +61,18 @@ def edit_entity(e):
         lines.append("---------------------------------------")
 
 
-for e in entityArray:
+fileName = "BN02Y0"
+doc = ezdxf.readfile(fileName + ".dxf")
+msp = doc.modelspace()
+entities = msp.query('MTEXT')
+entityArray = entities.query('*[style=="ROMANS"]')
+lines = []
+entity_list = list(entityArray)
+entity_list.sort(key=lambda ix: ix.dxf.insert.x)
+for e in entity_list:
     edit_entity(e)
-with open(fileName+'.txt', 'w') as f:
+    print(str(e.dxf.insert.x) + "--------------" + e.text)
+with open(fileName + '.txt', 'w') as f:
     for line in lines:
         f.write(line)
         f.write('\n')
