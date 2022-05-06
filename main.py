@@ -61,17 +61,19 @@ def edit_entity(e):
         lines.append("---------------------------------------")
 
 
-fileName = "BN02Y0"
+fileName = "BS16Y3"
 doc = ezdxf.readfile(fileName + ".dxf")
 msp = doc.modelspace()
-entities = msp.query('MTEXT')
-entityArray = entities.query('*[style=="ROMANS"]')
+layer_list = []
 lines = []
-entity_list = list(entityArray)
-entity_list.sort(key=lambda ix: ix.dxf.insert.x)
-for e in entity_list:
-    edit_entity(e)
-    print(str(e.dxf.insert.x) + "--------------" + e.text)
+for layer in doc.layers:
+    layer_list.append(layer.dxf.name)
+for layer_number in layer_list:
+    entityArray = doc.query(f'''MTEXT[layer=="{layer_number}"]''').query('*[style=="ROMANS"]')
+    entity_list = list(entityArray)
+    entity_list.sort(key=lambda ix: ix.dxf.insert.x)
+    for e in entity_list:
+        edit_entity(e)
 with open(fileName + '.txt', 'w') as f:
     for line in lines:
         f.write(line)
