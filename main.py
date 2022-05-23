@@ -80,13 +80,13 @@ for layer_number in layer_list:
     for component in all_att_def:
         if 270 > component.dxf.insert.y > 250:
             device_in_layer = str(component.dxf.tag).replace(".", "_").replace("-", "_").replace("/", "_")
-            # todo controllo caso se esiste già device_in_layer in string_to_nx
             # Filtro Dispositivo
             if "PCD1" in device_in_layer:
                 # Filtro Pin
                 if any("DI" in mtext.text for mtext in list(all_MText)):
                     prepared_string = ""
-                    prepared_string += f'''---\ndev = {device_in_layer}\n--- \n'''
+                    header_string = f'''---\ndev = {device_in_layer}\n--- \n'''
+                    prepared_string += header_string
                     prepared_string += devices_templates.PCD1_E1000_A10_DI
                     # todo se length di entity list uguale a template
                     i = 0
@@ -95,10 +95,15 @@ for layer_number in layer_list:
                         prepared_string = prepared_string.replace("DI" + pin_number + " = ",
                                                                   "DI" + pin_number + " = " + acronym)
                         i = i + 1
-                    print(prepared_string)
+                    # controllo caso se esiste già device_in_layer in string_to_nx
+                    if header_string in string_to_nx:
+                        string_to_nx.replace(header_string, prepared_string.replace(header_string, ""))
+                    else:
+                        string_to_nx += prepared_string
             elif "ISMA" in device_in_layer:
                 # todo
                 print("ISMA")
+print(string_to_nx)
 with open(fileName + '.txt', 'w') as f:
     for line in lines:
         f.write(line)
