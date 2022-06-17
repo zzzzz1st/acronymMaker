@@ -2,6 +2,7 @@ import ezdxf
 
 import acronymDic
 import devices_templates
+import devices_pins
 
 
 # helper function
@@ -57,7 +58,38 @@ def edit_entity(e):
     lines_in_layer.append("".join(my_str_array).lstrip("_"))
 
 
-fileName = "BS16Y3"
+# Va messo il nome di ogni dispositivo
+def get_generic_name(specific_name):
+    if "PCD1_E1000_A10" in specific_name:
+        return "PCD1_E1000_A10"
+    elif "PCD1_A1000_A20" in specific_name:
+        return "PCD1_A1000_A20"
+    else:
+        return "NUll"
+
+
+def select_pin(output_string, pin):
+    prepared_string = ""
+    header_string = f'''---\ndev = {device_in_layer}\n--- \n'''
+    prepared_string += header_string
+    print(get_generic_name(device_in_layer))
+    prepared_string += devices_templates.Devices.get(get_generic_name(device_in_layer) + "_" + pin)
+    if len(lines_in_layer) == devices_pins.Devices.get(str(get_generic_name(device_in_layer)) + "_" + pin):
+        i = 0
+        for acronym in lines_in_layer:
+            pin_number = "{:02d}".format(i)
+            prepared_string = prepared_string.replace(pin + pin_number + " = ",
+                                                      pin + pin_number + " = " + acronym)
+            i = i + 1
+        # controllo caso se esiste già device_in_layer in string_to_nx
+    if header_string in output_string:
+        output_string = output_string.replace(header_string, prepared_string.replace(header_string, ""))
+    else:
+        output_string += prepared_string
+    return output_string
+
+
+fileName = "AQ01AA0"
 doc = ezdxf.readfile(fileName + ".dxf")
 msp = doc.modelspace()
 layer_list = []
@@ -72,6 +104,10 @@ for layer_number in layer_list:
     all_MText = doc.query(f'''MTEXT[layer=="{layer_number}"]''')
     entityArray = all_MText.query('*[style=="ROMANS"]')
     entity_list = list(entityArray)
+    all_layer_pins = []
+    for mtext in all_MText:
+        if 270 > mtext.dxf.insert.y > 230:
+            all_layer_pins.append(mtext)
     entity_list.sort(key=lambda ix: ix.dxf.insert.x)
     for e in entity_list:
         edit_entity(e)
@@ -83,28 +119,18 @@ for layer_number in layer_list:
             # Filtro Dispositivo
             if "PCD1" in device_in_layer:
                 # Filtro Pin
-                if any("DI" in mtext.text for mtext in list(all_MText)):
-                    prepared_string = ""
-                    header_string = f'''---\ndev = {device_in_layer}\n--- \n'''
-                    prepared_string += header_string
-                    prepared_string += devices_templates.PCD1_E1000_A10_DI
-                    # todo se length di entity list uguale a template
-                    i = 0
-                    for acronym in lines_in_layer:
-                        pin_number = "{:02d}".format(i)
-                        prepared_string = prepared_string.replace("DI" + pin_number + " = ",
-                                                                  "DI" + pin_number + " = " + acronym)
-                        i = i + 1
-                    # controllo caso se esiste già device_in_layer in string_to_nx
-                    if header_string in string_to_nx:
-                        string_to_nx.replace(header_string, prepared_string.replace(header_string, ""))
-                    else:
-                        string_to_nx += prepared_string
+                if any("DO" in mtext.text for mtext in all_layer_pins):
+                    string_to_nx = select_pin(string_to_nx, "DO")
+                elif any("DI" in mtext.text for mtext in all_layer_pins):
+                    string_to_nx = select_pin(string_to_nx, "DI")
             elif "ISMA" in device_in_layer:
                 # todo
                 print("ISMA")
-print(string_to_nx)
+
 with open(fileName + '.txt', 'w') as f:
     for line in lines:
         f.write(line)
         f.write('\n')
+with open(fileName + 'output.txt', 'w') as f:
+    f.write(string_to_nx)
+    f.write('\n')
