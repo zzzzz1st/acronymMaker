@@ -52,6 +52,10 @@ def get_generic_name(specific_name):
         return "PCD1_A1000_A20"
     elif "PCD1_G2000_A20" in specific_name:
         return "PCD1_G2000_A20"
+    elif "PCD1_G5010_A20" in specific_name:
+        return "PCD1_G5010_A20"
+    elif "PCD1_G2200_A20" in specific_name:
+        return "PCD1_G2200_A20"
     else:
         return "NUll"
 
@@ -79,7 +83,10 @@ def select_pin(output_string, pin):
     prepared_string = ""
     header_string = f'''---\ndev = {device_in_layer}\n--- \n'''
     prepared_string += header_string
-    prepared_string += devices_templates.Devices.get(get_generic_name(device_in_layer) + "_" + pin)
+    try:
+        prepared_string += devices_templates.Devices.get(get_generic_name(device_in_layer) + "_" + pin)
+    except TypeError:
+        print("An unknown device on this page")
     if len(lines_in_layer) == devices_pins.Devices.get(str(get_generic_name(device_in_layer)) + "_" + pin):
         i = 0
         for acronym in lines_in_layer:
@@ -89,13 +96,13 @@ def select_pin(output_string, pin):
             i = i + 1
         # controllo caso se esiste già device_in_layer in string_to_nx
     if header_string in output_string:
-        output_string = output_string.replace(header_string, prepared_string.replace(header_string, ""))
+        output_string = output_string.replace(header_string, prepared_string)
     else:
         output_string += prepared_string
     return output_string
 
 
-fileName = "AQ01AA0"
+fileName = "QFS783"
 doc = ezdxf.readfile(fileName + ".dxf")
 msp = doc.modelspace()
 layer_list = []
@@ -126,12 +133,15 @@ for layer_number in layer_list:
             # Filtro Dispositivo
             if "PCD1" in device_in_layer:
                 # Filtro Pin
-                if any("DO1" in mtext.text for mtext in all_layer_pins):
+                if any("DO1" in mtext.text for mtext in all_layer_pins) or any(
+                        "NO1" in mtext.text for mtext in all_layer_pins):
                     string_to_nx = select_pin(string_to_nx, "DO")
                 elif any("DI1" in mtext.text for mtext in all_layer_pins):
                     string_to_nx = select_pin(string_to_nx, "DI")
                 elif any("UI1" in mtext.text for mtext in all_layer_pins):
                     string_to_nx = select_pin(string_to_nx, "UI")
+                elif any("AI1" in mtext.text for mtext in all_layer_pins):
+                    string_to_nx = select_pin(string_to_nx, "AI")
                 elif any("AO1" in mtext.text for mtext in all_layer_pins):
                     string_to_nx = select_pin(string_to_nx, "AO")
             elif "ISMA" in device_in_layer:

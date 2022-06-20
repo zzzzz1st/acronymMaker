@@ -1,0 +1,68 @@
+---
+dev = PCD1_A1000_A20
+--- 
+DO00 = 
+DO01 = 
+DO02 = 
+DO03 = 
+DO04 = 
+DO05 = 
+DO06 = 
+DO07 = 
+DO08 = 
+DO09 = 
+---
+dev = PCD1_G5010_A20
+--- 
+AI00 = 
+AI01 = 
+AI02 = 
+AI03 = 
+AI04 = 
+AI05 = 
+AI06 = 
+AI07 = 
+AI08 = 
+AI09 = 
+AI10 = 
+AI11 = 
+DI00 = Pmp_Cal1_Blocco
+DI01 = Pmp_Cal2_Blocco
+DI02 = Cal_Blocco
+DI03 = Gas_CentrT_All
+DI04 = Cor_Ape_Att_Val_Com_Inv_Fin
+DI05 = Cor_Chi_Att_Val_Com_Inv_Fin
+DI06 = Cor_Ape_Att_Val_Com_Est_Fin
+DI07 = Cor_Chi_Att_Val_Com_Est_Fin
+DI08 = Cor_Vlv1_Byp_Imp_Fin
+DI09 = Cor_Vlv2_Byp_Imp_Fin
+DI10 = Pmp_Cal_ACS_Blocco
+DI11 = QCDZ_Pmp_Ric_ACS_Rip_Con_Da_Qua_Di_Pot_St
+AO00 = 
+AO01 = 
+AO02 = 
+AO03 = 
+AO04 = 
+AO05 = 
+AO06 = 
+AO07 = 
+DO00 = 
+DO01 = 
+DO02 = 
+DO03 = 
+---
+dev = PCD1_G2200_A20
+--- 
+UI00 = 
+UI01 = 
+UI02 = 
+UI03 = 
+UI04 = 
+UI05 = 
+UI06 = 
+UI07 = 
+AO00 = Usc_Ana_Ris
+AO01 = Usc_Ana_Ris
+AO02 = Usc_Ana_Ris
+AO03 = Usc_Ana_Ris
+
