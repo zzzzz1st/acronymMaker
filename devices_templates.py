@@ -18,5 +18,15 @@ DO05 = \n\
 DO06 = \n\
 DO07 = \n\
 DO08 = \n\
-DO09 = \n"
+DO09 = \n",
+           "PCD1_G2000_A20_UI": "UI00 = \n\
+UI01 = \n\
+UI02 = \n\
+UI03 = \n\
+UI04 = \n\
+UI05 = \n\
+AO00 = \n\
+AO01 = \n\
+DO00 = \n\
+D001 = \n"
            }

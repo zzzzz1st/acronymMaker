@@ -77,6 +77,19 @@ DO07 = QRS_DisA
 DO08 = QRS_DisA
 DO09 = QRS_DisA
 ---
+dev = PCD1_G2000_A20
+--- 
+UI00 = Est_Cre
+UI01 = Ris1_Temp_Amb
+UI02 = Ris2_Temp_Amb
+UI03 = Fal_Temp_Amb
+UI04 = Ing_Dig_Ris
+UI05 = Ing_Dig_Ris
+AO00 = 
+AO01 = 
+DO00 = 
+D001 = 
+---
 dev = PCD1_E1000_A10
 --- 
 DI00 = QM1_Tens_Set_Nor_Pres

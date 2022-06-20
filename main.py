@@ -7,21 +7,7 @@ import devices_pins
 
 # helper function
 def edit_entity(e):
-    my_str = e.text.replace("\P", " ")
-    my_str = my_str.replace("\p", " ")
-    my_str = my_str.replace("xqc;", "")
-    my_str = my_str.replace("\A1;", "")
-    my_str = my_str.replace(")", "")
-    my_str = my_str.replace("(", "")
-    my_str = my_str.replace("/", "")
-    my_str = my_str.replace(".", "")
-    my_str = my_str.replace("-", "")
-    my_str = my_str.replace("DI ", "")
-    my_str = my_str.replace("ATTUATORE ", "")
-    my_str = my_str.replace("SENSORE ", "")
-    my_str = my_str.replace("SONDA ", "")
-    # Caso nome sonda vf20 e funzionamento
-    array = my_str.split("  ")
+    array = replace_string(e)
     if len(array) > 1:
         array.pop(0)
     my_str = array[0].strip()
@@ -64,15 +50,35 @@ def get_generic_name(specific_name):
         return "PCD1_E1000_A10"
     elif "PCD1_A1000_A20" in specific_name:
         return "PCD1_A1000_A20"
+    elif "PCD1_G2000_A20" in specific_name:
+        return "PCD1_G2000_A20"
     else:
         return "NUll"
+
+
+def replace_string(entity):
+    my_str = entity.text.replace("\P", " ")
+    my_str = my_str.replace("\p", " ")
+    my_str = my_str.replace("xqc;", "")
+    my_str = my_str.replace("\A1;", "")
+    my_str = my_str.replace(")", "")
+    my_str = my_str.replace("(", "")
+    my_str = my_str.replace("/", "")
+    my_str = my_str.replace(".", "")
+    my_str = my_str.replace("-", "")
+    my_str = my_str.replace("DI ", "")
+    my_str = my_str.replace("ATTUATORE ", "")
+    my_str = my_str.replace("SENSORE ", "")
+    my_str = my_str.replace("SONDA ", "")
+    # Caso nome sonda vf20 e funzionamento
+    array = my_str.split("  ")
+    return array
 
 
 def select_pin(output_string, pin):
     prepared_string = ""
     header_string = f'''---\ndev = {device_in_layer}\n--- \n'''
     prepared_string += header_string
-    print(get_generic_name(device_in_layer))
     prepared_string += devices_templates.Devices.get(get_generic_name(device_in_layer) + "_" + pin)
     if len(lines_in_layer) == devices_pins.Devices.get(str(get_generic_name(device_in_layer)) + "_" + pin):
         i = 0
@@ -106,6 +112,7 @@ for layer_number in layer_list:
     entity_list = list(entityArray)
     all_layer_pins = []
     for mtext in all_MText:
+        # Isola la parte pins
         if 270 > mtext.dxf.insert.y > 230:
             all_layer_pins.append(mtext)
     entity_list.sort(key=lambda ix: ix.dxf.insert.x)
@@ -119,10 +126,14 @@ for layer_number in layer_list:
             # Filtro Dispositivo
             if "PCD1" in device_in_layer:
                 # Filtro Pin
-                if any("DO" in mtext.text for mtext in all_layer_pins):
+                if any("DO1" in mtext.text for mtext in all_layer_pins):
                     string_to_nx = select_pin(string_to_nx, "DO")
-                elif any("DI" in mtext.text for mtext in all_layer_pins):
+                elif any("DI1" in mtext.text for mtext in all_layer_pins):
                     string_to_nx = select_pin(string_to_nx, "DI")
+                elif any("UI1" in mtext.text for mtext in all_layer_pins):
+                    string_to_nx = select_pin(string_to_nx, "UI")
+                elif any("AO1" in mtext.text for mtext in all_layer_pins):
+                    string_to_nx = select_pin(string_to_nx, "AO")
             elif "ISMA" in device_in_layer:
                 # todo
                 print("ISMA")
