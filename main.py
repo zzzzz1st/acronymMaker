@@ -101,58 +101,57 @@ def select_pin(output_string, pin):
         output_string += prepared_string
     return output_string
 
-def main():
-    fileName = "QFS785"
-    doc = ezdxf.readfile(fileName + ".dxf")
-    msp = doc.modelspace()
-    layer_list = []
-    lines = []
+
+fileName = "QFS785"
+doc = ezdxf.readfile(fileName + ".dxf")
+msp = doc.modelspace()
+layer_list = []
+lines = []
+lines_in_layer = []
+string_to_nx = ""
+for layer in doc.layers:
+    layer_list.append(layer.dxf.name)
+
+for layer_number in layer_list:
     lines_in_layer = []
-    string_to_nx = ""
-    for layer in doc.layers:
-        layer_list.append(layer.dxf.name)
+    all_MText = doc.query(f'''MTEXT[layer=="{layer_number}"]''')
+    entityArray = all_MText.query('*[style=="ROMANS"]')
+    entity_list = list(entityArray)
+    all_layer_pins = []
+    for mtext in all_MText:
+        # Isola la parte pins
+        if 270 > mtext.dxf.insert.y > 230:
+            all_layer_pins.append(mtext)
+    entity_list.sort(key=lambda ix: ix.dxf.insert.x)
+    for e in entity_list:
+        edit_entity(e)
+    all_att_def = doc.query(f'''ATTDEF[layer=="{layer_number}"]''')
+    # TROVA TUTTI I NOMI SOPRA OGNI LAYER
+    for component in all_att_def:
+        if 270 > component.dxf.insert.y > 250:
+            device_in_layer = str(component.dxf.tag).replace(".", "_").replace("-", "_").replace("/", "_")
+            # Filtro Dispositivo
+            if "PCD1" in device_in_layer:
+                # Filtro Pin
+                if any("DO1" in mtext.text for mtext in all_layer_pins) or any(
+                        "NO1" in mtext.text for mtext in all_layer_pins):
+                    string_to_nx = select_pin(string_to_nx, "DO")
+                elif any("DI1" in mtext.text for mtext in all_layer_pins):
+                    string_to_nx = select_pin(string_to_nx, "DI")
+                elif any("UI1" in mtext.text for mtext in all_layer_pins):
+                    string_to_nx = select_pin(string_to_nx, "UI")
+                elif any("AI1" in mtext.text for mtext in all_layer_pins):
+                    string_to_nx = select_pin(string_to_nx, "AI")
+                elif any("AO1" in mtext.text for mtext in all_layer_pins):
+                    string_to_nx = select_pin(string_to_nx, "AO")
+            elif "ISMA" in device_in_layer:
+                # todo
+                print("ISMA")
 
-    for layer_number in layer_list:
-        lines_in_layer = []
-        all_MText = doc.query(f'''MTEXT[layer=="{layer_number}"]''')
-        entityArray = all_MText.query('*[style=="ROMANS"]')
-        entity_list = list(entityArray)
-        all_layer_pins = []
-        for mtext in all_MText:
-            # Isola la parte pins
-            if 270 > mtext.dxf.insert.y > 230:
-                all_layer_pins.append(mtext)
-        entity_list.sort(key=lambda ix: ix.dxf.insert.x)
-        for e in entity_list:
-            edit_entity(e)
-        all_att_def = doc.query(f'''ATTDEF[layer=="{layer_number}"]''')
-        # TROVA TUTTI I NOMI SOPRA OGNI LAYER
-        for component in all_att_def:
-            if 270 > component.dxf.insert.y > 250:
-                device_in_layer = str(component.dxf.tag).replace(".", "_").replace("-", "_").replace("/", "_")
-                # Filtro Dispositivo
-                if "PCD1" in device_in_layer:
-                    # Filtro Pin
-                    if any("DO1" in mtext.text for mtext in all_layer_pins) or any(
-                            "NO1" in mtext.text for mtext in all_layer_pins):
-                        string_to_nx = select_pin(string_to_nx, "DO")
-                    elif any("DI1" in mtext.text for mtext in all_layer_pins):
-                        string_to_nx = select_pin(string_to_nx, "DI")
-                    elif any("UI1" in mtext.text for mtext in all_layer_pins):
-                        string_to_nx = select_pin(string_to_nx, "UI")
-                    elif any("AI1" in mtext.text for mtext in all_layer_pins):
-                        string_to_nx = select_pin(string_to_nx, "AI")
-                    elif any("AO1" in mtext.text for mtext in all_layer_pins):
-                        string_to_nx = select_pin(string_to_nx, "AO")
-                elif "ISMA" in device_in_layer:
-                    # todo
-                    print("ISMA")
-
-    with open(fileName + '.txt', 'w') as f:
-        for line in lines:
-            f.write(line)
-            f.write('\n')
-    with open(fileName + 'output.txt', 'w') as f:
-        f.write(string_to_nx)
+with open(fileName + '.txt', 'w') as f:
+    for line in lines:
+        f.write(line)
         f.write('\n')
-main()
+with open(fileName + 'output.txt', 'w') as f:
+    f.write(string_to_nx)
+    f.write('\n')
