@@ -4,6 +4,12 @@ import acronymDic
 import devices_templates
 import devices_pins
 
+'''
+Questo programma è fatto considerando che il format delle pagine non cambia.
+Nel caso in cui cambia la formattazione bisogna modificare il codice.
+Va aggiornato il dizionario "acronymDic" sempre in modo da avere gli acronimi più precisi.
+'''
+
 
 # helper function
 def edit_entity(e):
@@ -56,6 +62,8 @@ def get_generic_name(specific_name):
         return "PCD1_G5010_A20"
     elif "PCD1_G2200_A20" in specific_name:
         return "PCD1_G2200_A20"
+    elif "ISMA_B_MIX38" in specific_name:
+        return "ISMA_B_MIX38"
     else:
         return "NUll"
 
@@ -79,7 +87,7 @@ def replace_string(entity):
     return array
 
 
-def select_pin(output_string, pin):
+def select_pin(output_string, pin, start_pin):
     prepared_string = ""
     header_string = f'''---\ndev = {device_in_layer}\n--- \n'''
     prepared_string += header_string
@@ -88,7 +96,9 @@ def select_pin(output_string, pin):
     except TypeError:
         print("An unknown device on this page")
     if len(lines_in_layer) == devices_pins.Devices.get(str(get_generic_name(device_in_layer)) + "_" + pin):
-        i = 0
+        i = start_pin
+        if "TEMP" in pin:
+            pin = pin[0:2]
         for acronym in lines_in_layer:
             pin_number = "{:02d}".format(i)
             prepared_string = prepared_string.replace(pin + pin_number + " = ",
@@ -102,7 +112,7 @@ def select_pin(output_string, pin):
     return output_string
 
 
-fileName = "QFS785"
+fileName = "AZ02AA0"
 doc = ezdxf.readfile(fileName + ".dxf")
 msp = doc.modelspace()
 layer_list = []
@@ -120,7 +130,7 @@ for layer_number in layer_list:
     all_layer_pins = []
     for mtext in all_MText:
         # Isola la parte pins
-        if 270 > mtext.dxf.insert.y > 230:
+        if 270 > mtext.dxf.insert.y > 225:
             all_layer_pins.append(mtext)
     entity_list.sort(key=lambda ix: ix.dxf.insert.x)
     for e in entity_list:
@@ -132,21 +142,32 @@ for layer_number in layer_list:
             device_in_layer = str(component.dxf.tag).replace(".", "_").replace("-", "_").replace("/", "_")
             # Filtro Dispositivo
             if "PCD1" in device_in_layer:
-                # Filtro Pin
+                # Filtro Pin PCD1
                 if any("DO1" in mtext.text for mtext in all_layer_pins) or any(
                         "NO1" in mtext.text for mtext in all_layer_pins):
-                    string_to_nx = select_pin(string_to_nx, "DO")
+                    string_to_nx = select_pin(string_to_nx, "DO", 0)
                 elif any("DI1" in mtext.text for mtext in all_layer_pins):
-                    string_to_nx = select_pin(string_to_nx, "DI")
+                    string_to_nx = select_pin(string_to_nx, "DI", 0)
                 elif any("UI1" in mtext.text for mtext in all_layer_pins):
-                    string_to_nx = select_pin(string_to_nx, "UI")
+                    string_to_nx = select_pin(string_to_nx, "UI", 0)
                 elif any("AI1" in mtext.text for mtext in all_layer_pins):
-                    string_to_nx = select_pin(string_to_nx, "AI")
+                    string_to_nx = select_pin(string_to_nx, "AI", 0)
                 elif any("AO1" in mtext.text for mtext in all_layer_pins):
-                    string_to_nx = select_pin(string_to_nx, "AO")
+                    string_to_nx = select_pin(string_to_nx, "AO", 0)
             elif "ISMA" in device_in_layer:
-                # todo
-                print("ISMA")
+                # Filtro Pin ISMA
+                if any("DIGITAL OUTPUTS" in mtext.text for mtext in all_layer_pins) and any(
+                        "C1" in mtext.text for mtext in all_layer_pins):
+                    string_to_nx = select_pin(string_to_nx, "DO_TEMP1", 1)
+                elif any("DIGITAL OUTPUTS" in mtext.text for mtext in all_layer_pins) and any(
+                        "C4" in mtext.text for mtext in all_layer_pins):
+                    string_to_nx = select_pin(string_to_nx, "DO_TEMP2", 7)
+                elif any("ANALOG OUTPUTS" in mtext.text for mtext in all_layer_pins):
+                    string_to_nx = select_pin(string_to_nx, "AO", 1)
+                elif any("DIGITAL INPUTS" in mtext.text for mtext in all_layer_pins):
+                    string_to_nx = select_pin(string_to_nx, "DI", 1)
+                elif any("UNIVERSAL INPUTS" in mtext.text for mtext in all_layer_pins):
+                    string_to_nx = select_pin(string_to_nx, "UI", 1)
 
 with open(fileName + '.txt', 'w') as f:
     for line in lines:
