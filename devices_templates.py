@@ -115,5 +115,13 @@ UI04 = \n\
 UI05 = \n\
 UI06 = \n\
 UI07 = \n\
-UI08 = \n"
+UI08 = \n",
+           "ISMA_B_8I_DI": "DI01 = \n\
+DI02 = \n\
+DI03 = \n\
+DI04 = \n\
+DI05 = \n\
+DI06 = \n\
+DI07 = \n\
+DI08 = \n"
            }

@@ -64,6 +64,8 @@ def get_generic_name(specific_name):
         return "PCD1_G2200_A20"
     elif "ISMA_B_MIX38" in specific_name:
         return "ISMA_B_MIX38"
+    elif "ISMA_B_8I" in specific_name:
+        return "ISMA_B_8I"
     else:
         return "NUll"
 
@@ -112,7 +114,7 @@ def select_pin(output_string, pin, start_pin):
     return output_string
 
 
-fileName = "AZ02AA0"
+fileName = "AZ01AA0"
 doc = ezdxf.readfile(fileName + ".dxf")
 msp = doc.modelspace()
 layer_list = []
@@ -157,10 +159,12 @@ for layer_number in layer_list:
             elif "ISMA" in device_in_layer:
                 # Filtro Pin ISMA
                 if any("DIGITAL OUTPUTS" in mtext.text for mtext in all_layer_pins) and any(
-                        "C1" in mtext.text for mtext in all_layer_pins):
+                        "C1" in mtext.text for mtext in all_layer_pins) and not any(
+                        "C4" in mtext.text for mtext in all_layer_pins):
                     string_to_nx = select_pin(string_to_nx, "DO_TEMP1", 1)
                 elif any("DIGITAL OUTPUTS" in mtext.text for mtext in all_layer_pins) and any(
-                        "C4" in mtext.text for mtext in all_layer_pins):
+                        "C4" in mtext.text for mtext in all_layer_pins) and not any(
+                        "C1" in mtext.text for mtext in all_layer_pins):
                     string_to_nx = select_pin(string_to_nx, "DO_TEMP2", 7)
                 elif any("ANALOG OUTPUTS" in mtext.text for mtext in all_layer_pins):
                     string_to_nx = select_pin(string_to_nx, "AO", 1)
